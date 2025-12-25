@@ -1,0 +1,20 @@
+# Unreal Engine
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+
+# Visual Studio
+.vs/
+*.sln
+*.VC.db
+
+# Rider
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+Build/Win64/*.exe
