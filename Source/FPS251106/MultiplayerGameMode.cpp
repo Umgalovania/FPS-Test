@@ -32,11 +32,11 @@ void AMultiplayerGameMode::BeginPlay()
 		GetWorldTimerManager().SetTimer(MatchTimerHandle, this, &AMultiplayerGameMode::OnMatchTimeExpired_Internal, MatchDuration, false);
 	}
 
-	// Spawn initial enemies
-	if (NPCClass && InitialEnemyCount > 0)
-	{
-		SpawnInitialEnemies();
-	}
+	// Spawn initial enemies - Disabled, enemies should be placed manually in the level
+	// if (NPCClass && InitialEnemyCount > 0)
+	// {
+	// 	SpawnInitialEnemies();
+	// }
 }
 
 void AMultiplayerGameMode::IncrementTeamScore(uint8 TeamByte)
@@ -139,8 +139,8 @@ void AMultiplayerGameMode::SpawnInitialEnemies()
 		}
 	}
 
-	// Minimum distance from player to spawn enemies (in cm, 500 = 5 meters)
-	const float MinDistanceFromPlayer = 500.0f;
+	// Minimum distance from player to spawn enemies (in cm, 3000 = 30 meters)
+	const float MinDistanceFromPlayer = 3000.0f;
 
 	// Spawn enemies at player start locations that are far from the player
 	TArray<int32> UsedIndices;

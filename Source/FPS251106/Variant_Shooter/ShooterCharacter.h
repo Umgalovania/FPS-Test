@@ -40,6 +40,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category ="Input")
 	UInputAction* SwitchWeaponAction;
 
+	/** Reload weapon input action */
+	UPROPERTY(EditAnywhere, Category ="Input")
+	UInputAction* ReloadAction;
+
 	/** Name of the first person mesh weapon socket */
 	UPROPERTY(EditAnywhere, Category ="Weapons")
 	FName FirstPersonWeaponSocket = FName("HandGrip_R");
@@ -121,6 +125,10 @@ public:
 	/** Handles switch weapon input */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	void DoSwitchWeapon();
+
+	/** Handles reload weapon input */
+	UFUNCTION(BlueprintCallable, Category="Input")
+	void DoReload();
 
 public:
 

@@ -52,6 +52,13 @@ protected:
 	/** Pointer to the bullet counter UI widget */
 	TObjectPtr<UShooterBulletCounterUI> BulletCounterUI;
 
+	/** Type of crosshair UI widget to spawn */
+	UPROPERTY(EditAnywhere, Category="Shooter|UI")
+	TSubclassOf<class UUserWidget> CrosshairUIClass;
+
+	/** Pointer to the crosshair UI widget */
+	TObjectPtr<UUserWidget> CrosshairUI;
+
 protected:
 
 	/** Gameplay Initialization */

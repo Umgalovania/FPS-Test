@@ -94,6 +94,12 @@ protected:
 	/** Timer to handle full auto refiring */
 	FTimerHandle RefireTimer;
 
+	/** If true, the weapon is currently reloading */
+	bool bIsReloading = false;
+
+	/** Timer to handle reload duration */
+	FTimerHandle ReloadTimer;
+
 	/** Cast pawn pointer to the owner for AI perception system interactions */
 	TObjectPtr<APawn> PawnOwner;
 
@@ -177,4 +183,19 @@ public:
 
 	/** Returns the current bullet count */
 	int32 GetBulletCount() const { return CurrentBullets; }
+
+	/** Start reloading the weapon */
+	void StartReload();
+
+	/** Returns true if the weapon is currently reloading */
+	bool IsReloading() const { return bIsReloading; }
+
+protected:
+
+	/** Duration of reload in seconds */
+	UPROPERTY(EditAnywhere, Category="Ammo", meta = (ClampMin = 0, ClampMax = 10, Units = "s"))
+	float ReloadDuration = 2.0f;
+
+	/** Called when reload is complete */
+	void OnReloadComplete();
 };

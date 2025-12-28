@@ -64,6 +64,9 @@ void AShooterWeapon::EndPlay(EEndPlayReason::Type EndPlayReason)
 
 	// clear the refire timer
 	GetWorld()->GetTimerManager().ClearTimer(RefireTimer);
+	
+	// clear the reload timer
+	GetWorld()->GetTimerManager().ClearTimer(ReloadTimer);
 }
 
 void AShooterWeapon::OnOwnerDestroyed(AActor* DestroyedActor)
@@ -95,6 +98,12 @@ void AShooterWeapon::DeactivateWeapon()
 
 void AShooterWeapon::StartFiring()
 {
+	// don't allow firing while reloading
+	if (bIsReloading)
+	{
+		return;
+	}
+
 	// raise the firing flag
 	bIsFiring = true;
 
@@ -132,6 +141,19 @@ void AShooterWeapon::Fire()
 	// ensure the player still wants to fire. They may have let go of the trigger
 	if (!bIsFiring)
 	{
+		return;
+	}
+
+	// don't fire if reloading
+	if (bIsReloading)
+	{
+		return;
+	}
+
+	// don't fire if out of ammo
+	if (CurrentBullets <= 0)
+	{
+		StopFiring();
 		return;
 	}
 	
@@ -186,12 +208,6 @@ void AShooterWeapon::FireProjectile(const FVector& TargetLocation)
 	// consume bullets
 	--CurrentBullets;
 
-	// if the clip is depleted, reload it
-	if (CurrentBullets <= 0)
-	{
-		CurrentBullets = MagazineSize;
-	}
-
 	// update the weapon HUD
 	WeaponOwner->UpdateWeaponHUD(CurrentBullets, MagazineSize);
 }
@@ -219,4 +235,46 @@ const TSubclassOf<UAnimInstance>& AShooterWeapon::GetFirstPersonAnimInstanceClas
 const TSubclassOf<UAnimInstance>& AShooterWeapon::GetThirdPersonAnimInstanceClass() const
 {
 	return ThirdPersonAnimInstanceClass;
+}
+
+void AShooterWeapon::StartReload()
+{
+	// Don't reload if already reloading
+	if (bIsReloading)
+	{
+		return;
+	}
+
+	// Don't reload if magazine is already full
+	if (CurrentBullets >= MagazineSize)
+	{
+		return;
+	}
+
+	// Stop firing if currently firing
+	if (bIsFiring)
+	{
+		StopFiring();
+	}
+
+	// Set reloading flag
+	bIsReloading = true;
+
+	// Schedule reload completion
+	GetWorld()->GetTimerManager().SetTimer(ReloadTimer, this, &AShooterWeapon::OnReloadComplete, ReloadDuration, false);
+}
+
+void AShooterWeapon::OnReloadComplete()
+{
+	// Fill the magazine
+	CurrentBullets = MagazineSize;
+
+	// Clear reloading flag
+	bIsReloading = false;
+
+	// Update the weapon HUD
+	if (WeaponOwner)
+	{
+		WeaponOwner->UpdateWeaponHUD(CurrentBullets, MagazineSize);
+	}
 }

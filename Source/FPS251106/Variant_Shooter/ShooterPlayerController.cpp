@@ -48,6 +48,21 @@ void AShooterPlayerController::BeginPlay()
 			UE_LOG(LogFPS251106, Error, TEXT("Could not spawn bullet counter widget."));
 
 		}
+
+		// create the crosshair widget and add it to the screen
+		if (CrosshairUIClass)
+		{
+			CrosshairUI = CreateWidget<UUserWidget>(this, CrosshairUIClass);
+
+			if (CrosshairUI)
+			{
+				CrosshairUI->AddToPlayerScreen(0);
+			}
+			else
+			{
+				UE_LOG(LogFPS251106, Error, TEXT("Could not spawn crosshair widget."));
+			}
+		}
 		
 	}
 }
