@@ -12,6 +12,10 @@
 
 AFPS251106Character::AFPS251106Character()
 {
+	// Enable replication (can be overridden by subclasses)
+	bReplicates = true;
+	SetReplicateMovement(true);
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 	

@@ -2,6 +2,7 @@
 
 
 #include "Variant_Shooter/AI/ShooterNPC.h"
+#include "Variant_Shooter/AI/ShooterAIController.h"
 #include "ShooterWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
@@ -11,6 +12,21 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
+#include "Net/UnrealNetwork.h"
+#include "AIController.h"
+
+AShooterNPC::AShooterNPC()
+{
+	// Enable replication
+	bReplicates = true;
+	SetReplicateMovement(true);
+
+	// Set the AI Controller class
+	AIControllerClass = AShooterAIController::StaticClass();
+
+	// Auto possess with AI controller when spawned
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+}
 
 void AShooterNPC::BeginPlay()
 {
@@ -205,4 +221,21 @@ void AShooterNPC::StopShooting()
 
 	// signal the weapon
 	Weapon->StopFiring();
+}
+
+void AShooterNPC::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AShooterNPC, CurrentHP);
+	DOREPLIFETIME(AShooterNPC, TeamByte);
+}
+
+void AShooterNPC::OnRep_CurrentHP()
+{
+	// If HP reaches zero or below, die (only on clients, server handles it in TakeDamage)
+	if (CurrentHP <= 0.0f && !bIsDead)
+	{
+		Die();
+	}
 }

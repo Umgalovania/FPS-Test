@@ -12,9 +12,14 @@
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "ShooterGameMode.h"
+#include "Net/UnrealNetwork.h"
 
 AShooterCharacter::AShooterCharacter()
 {
+	// Enable replication
+	bReplicates = true;
+	SetReplicateMovement(true);
+
 	// create the noise emitter component
 	PawnNoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("Pawn Noise Emitter"));
 
@@ -31,6 +36,12 @@ void AShooterCharacter::BeginPlay()
 
 	// update the HUD
 	OnDamaged.Broadcast(1.0f);
+
+	// Give initial weapon if specified
+	if (InitialWeaponClass)
+	{
+		AddWeaponClass(InitialWeaponClass);
+	}
 }
 
 void AShooterCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
@@ -280,4 +291,18 @@ void AShooterCharacter::OnRespawn()
 {
 	// destroy the character to force the PC to respawn
 	Destroy();
+}
+
+void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AShooterCharacter, CurrentHP);
+	DOREPLIFETIME(AShooterCharacter, TeamByte);
+}
+
+void AShooterCharacter::OnRep_CurrentHP()
+{
+	// Update the HUD when HP is replicated
+	OnDamaged.Broadcast(FMath::Max(0.0f, CurrentHP / MaxHP));
 }

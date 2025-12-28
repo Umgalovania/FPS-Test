@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FPS251106Character.h"
 #include "ShooterWeaponHolder.h"
+#include "Net/UnrealNetwork.h"
 #include "ShooterCharacter.generated.h"
 
 class AShooterWeapon;
@@ -47,6 +48,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category ="Weapons")
 	FName ThirdPersonWeaponSocket = FName("HandGrip_R");
 
+	/** Initial weapon class to spawn when character begins play */
+	UPROPERTY(EditAnywhere, Category ="Weapons")
+	TSubclassOf<AShooterWeapon> InitialWeaponClass;
+
 	/** Max distance to use for aim traces */
 	UPROPERTY(EditAnywhere, Category ="Aim", meta = (ClampMin = 0, ClampMax = 100000, Units = "cm"))
 	float MaxAimDistance = 10000.0f;
@@ -56,10 +61,11 @@ protected:
 	float MaxHP = 500.0f;
 
 	/** Current HP remaining to this character */
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentHP)
 	float CurrentHP = 0.0f;
 
 	/** Team ID for this character*/
-	UPROPERTY(EditAnywhere, Category="Team")
+	UPROPERTY(EditAnywhere, Replicated, Category="Team")
 	uint8 TeamByte = 0;
 
 	/** List of weapons picked up by the character */
@@ -163,4 +169,13 @@ protected:
 
 	/** Called from the respawn timer to destroy this character and force the PC to respawn */
 	void OnRespawn();
+
+protected:
+
+	/** Network replication */
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	/** Called when CurrentHP is replicated */
+	UFUNCTION()
+	void OnRep_CurrentHP();
 };

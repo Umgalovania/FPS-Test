@@ -16,6 +16,10 @@ AShooterWeapon::AShooterWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Enable replication
+	bReplicates = true;
+	SetReplicateMovement(true);
+
 	// create the root
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 

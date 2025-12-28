@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "FPS251106Character.h"
 #include "ShooterWeaponHolder.h"
+#include "Net/UnrealNetwork.h"
 #include "ShooterNPC.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPawnDeathDelegate);
@@ -24,7 +25,7 @@ class FPS251106_API AShooterNPC : public AFPS251106Character, public IShooterWea
 public:
 
 	/** Current HP for this character. It dies if it reaches zero through damage */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Damage")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentHP, Category="Damage")
 	float CurrentHP = 100.0f;
 
 protected:
@@ -38,7 +39,7 @@ protected:
 	float DeferredDestructionTime = 5.0f;
 
 	/** Team byte for this character */
-	UPROPERTY(EditAnywhere, Category="Team")
+	UPROPERTY(EditAnywhere, Replicated, Category="Team")
 	uint8 TeamByte = 1;
 
 	/** Pointer to the equipped weapon */
@@ -88,6 +89,11 @@ public:
 
 	/** Delegate called when this NPC dies */
 	FPawnDeathDelegate OnPawnDeath;
+
+public:
+
+	/** Constructor */
+	AShooterNPC();
 
 protected:
 
@@ -150,4 +156,13 @@ public:
 
 	/** Signals this character to stop shooting */
 	void StopShooting();
+
+protected:
+
+	/** Network replication */
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	/** Called when CurrentHP is replicated */
+	UFUNCTION()
+	void OnRep_CurrentHP();
 };
