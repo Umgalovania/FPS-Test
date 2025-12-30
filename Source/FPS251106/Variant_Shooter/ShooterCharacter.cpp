@@ -44,14 +44,6 @@ void AShooterCharacter::BeginPlay()
 	}
 }
 
-void AShooterCharacter::EndPlay(EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-
-	// clear the respawn timer
-	GetWorld()->GetTimerManager().ClearTimer(RespawnTimer);
-}
-
 void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// base class handles move, aim and jump inputs
@@ -277,12 +269,6 @@ void AShooterCharacter::Die()
 		CurrentWeapon->DeactivateWeapon();
 	}
 
-	// increment the team score
-	if (AShooterGameMode* GM = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode()))
-	{
-		GM->IncrementTeamScore(TeamByte);
-	}
-		
 	// stop character movement
 	GetCharacterMovement()->StopMovementImmediately();
 
@@ -295,14 +281,11 @@ void AShooterCharacter::Die()
 	// call the BP handler
 	BP_OnDeath();
 
-	// schedule character respawn
-	GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AShooterCharacter::OnRespawn, RespawnTime, false);
-}
-
-void AShooterCharacter::OnRespawn()
-{
-	// destroy the character to force the PC to respawn
-	Destroy();
+	// notify the game mode so it can show the game over screen
+	if (AShooterGameMode* GM = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GM->HandlePlayerDeath(this);
+	}
 }
 
 void AShooterCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

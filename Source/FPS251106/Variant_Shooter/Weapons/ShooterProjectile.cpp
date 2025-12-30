@@ -12,6 +12,9 @@
 #include "Engine/OverlapResult.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "Variant_Shooter/ShooterGameMode.h"
+#include "Variant_Shooter/ShooterCharacter.h"
+#include "Variant_Shooter/AI/ShooterNPC.h"
 
 AShooterProjectile::AShooterProjectile()
 {
@@ -153,6 +156,29 @@ void AShooterProjectile::ProcessHit(AActor* HitActor, UPrimitiveComponent* HitCo
 		{
 			// apply damage to the character
 			UGameplayStatics::ApplyDamage(HitCharacter, HitDamage, GetInstigator()->GetController(), this, HitDamageType);
+
+			// scoring logic: player <-> enemy hits
+			if (AShooterGameMode* GM = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode()))
+			{
+				APawn* InstigatorPawn = GetInstigator();
+
+				AShooterCharacter* PlayerInstigator = Cast<AShooterCharacter>(InstigatorPawn);
+				AShooterNPC* EnemyInstigator = Cast<AShooterNPC>(InstigatorPawn);
+
+				AShooterCharacter* PlayerTarget = Cast<AShooterCharacter>(HitCharacter);
+				AShooterNPC* EnemyTarget = Cast<AShooterNPC>(HitCharacter);
+
+				// player hits an enemy: +10
+				if (PlayerInstigator && EnemyTarget)
+				{
+					GM->AddScore(10);
+				}
+				// enemy hits the player: -15
+				else if (EnemyInstigator && PlayerTarget)
+				{
+					GM->AddScore(-15);
+				}
+			}
 		}
 	}
 

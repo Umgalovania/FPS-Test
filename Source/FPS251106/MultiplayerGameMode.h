@@ -14,7 +14,7 @@ class UShooterUI;
  *  Multiplayer GameMode for a first person shooter game
  *  Supports network replication and victory conditions
  */
-UCLASS(BlueprintType, Blueprintable)
+UCLASS(abstract)
 class FPS251106_API AMultiplayerGameMode : public AShooterGameMode
 {
 	GENERATED_BODY()
@@ -43,6 +43,10 @@ protected:
 	/** True if the match has ended */
 	bool bMatchEnded = false;
 
+	/** Minimum distance from player to spawn enemies (in cm, 3000 = 30 meters) */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Multiplayer|Enemies", meta = (ClampMin = 0))
+	float MinDistanceFromPlayer = 3000.0f;
+
 protected:
 
 	/** Gameplay initialization */
@@ -55,6 +59,10 @@ public:
 
 	/** Increases the score for the given team and checks for victory */
 	virtual void IncrementTeamScore(uint8 TeamByte) override;
+
+	/** Spawns a single enemy at a random valid location in the map */
+	UFUNCTION(BlueprintCallable, Category="Multiplayer|Enemies")
+	class AShooterNPC* SpawnEnemyAtRandomLocation();
 
 	/** Checks if any team has reached the target score */
 	UFUNCTION(BlueprintCallable, Category="Multiplayer")

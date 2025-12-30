@@ -81,8 +81,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category ="Destruction", meta = (ClampMin = 0, ClampMax = 10, Units = "s"))
 	float RespawnTime = 5.0f;
 
-	FTimerHandle RespawnTimer;
-
 public:
 
 	/** Bullet count updated delegate */
@@ -100,9 +98,6 @@ protected:
 
 	/** Gameplay initialization */
 	virtual void BeginPlay() override;
-
-	/** Gameplay cleanup */
-	virtual void EndPlay(EEndPlayReason::Type EndPlayReason) override;
 
 	/** Set up input action bindings */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -174,9 +169,6 @@ protected:
 	/** Called to allow Blueprint code to react to this character's death */
 	UFUNCTION(BlueprintImplementableEvent, Category="Shooter", meta = (DisplayName = "On Death"))
 	void BP_OnDeath();
-
-	/** Called from the respawn timer to destroy this character and force the PC to respawn */
-	void OnRespawn();
 
 protected:
 

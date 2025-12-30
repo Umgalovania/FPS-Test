@@ -9,6 +9,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Engine/World.h"
 #include "ShooterGameMode.h"
+#include "MultiplayerGameMode.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "TimerManager.h"
@@ -175,10 +176,10 @@ void AShooterNPC::Die()
 	// raise the dead flag
 	bIsDead = true;
 
-	// increment the team score
+	// award kill score to the player (shooter variant assumes only player kills NPCs)
 	if (AShooterGameMode* GM = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		GM->IncrementTeamScore(TeamByte);
+		GM->AddScore(50);
 	}
 
 	// disable capsule collision
@@ -199,6 +200,15 @@ void AShooterNPC::Die()
 
 void AShooterNPC::DeferredDestruction()
 {
+	// respawn a new enemy at a random location through the multiplayer game mode
+	if (HasAuthority())
+	{
+		if (AMultiplayerGameMode* GM = Cast<AMultiplayerGameMode>(GetWorld()->GetAuthGameMode()))
+		{
+			GM->SpawnEnemyAtRandomLocation();
+		}
+	}
+
 	Destroy();
 }
 

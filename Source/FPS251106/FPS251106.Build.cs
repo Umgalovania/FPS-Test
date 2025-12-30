@@ -18,7 +18,8 @@ public class FPS251106 : ModuleRules
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
-			"Slate"
+			"Slate",
+			"Kismet"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
@@ -30,7 +31,8 @@ public class FPS251106 : ModuleRules
 			"FPS251106/Variant_Shooter",
 			"FPS251106/Variant_Shooter/AI",
 			"FPS251106/Variant_Shooter/UI",
-			"FPS251106/Variant_Shooter/Weapons"
+			"FPS251106/Variant_Shooter/Weapons",
+			"FPS251106/Menu"
 		});
 
 		// Uncomment if you are using Slate UI

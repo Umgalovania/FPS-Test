@@ -16,6 +16,11 @@ void AShooterPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Set input mode to game only (allows character control)
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
+	bShowMouseCursor = false;
+
 	// only spawn touch controls on local player controllers
 	if (IsLocalPlayerController())
 	{
@@ -96,6 +101,14 @@ void AShooterPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	// Set input mode to game only when possessing a pawn (ensures control after level transition)
+	if (IsLocalPlayerController())
+	{
+		FInputModeGameOnly InputMode;
+		SetInputMode(InputMode);
+		bShowMouseCursor = false;
+	}
+
 	// subscribe to the pawn's OnDestroyed delegate
 	InPawn->OnDestroyed.AddDynamic(this, &AShooterPlayerController::OnPawnDestroyed);
 
@@ -117,26 +130,12 @@ void AShooterPlayerController::OnPossess(APawn* InPawn)
 void AShooterPlayerController::OnPawnDestroyed(AActor* DestroyedActor)
 {
 	// reset the bullet counter HUD
-	BulletCounterUI->BP_UpdateBulletCounter(0, 0);
-
-	// find the player start
-	TArray<AActor*> ActorList;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), ActorList);
-
-	if (ActorList.Num() > 0)
+	if (BulletCounterUI)
 	{
-		// select a random player start
-		AActor* RandomPlayerStart = ActorList[FMath::RandRange(0, ActorList.Num() - 1)];
-
-		// spawn a character at the player start
-		const FTransform SpawnTransform = RandomPlayerStart->GetActorTransform();
-
-		if (AShooterCharacter* RespawnedCharacter = GetWorld()->SpawnActor<AShooterCharacter>(CharacterClass, SpawnTransform))
-		{
-			// possess the character
-			Possess(RespawnedCharacter);
-		}
+		BulletCounterUI->BP_UpdateBulletCounter(0, 0);
 	}
+
+	// 不再在这里复活玩家，死亡后由 GameMode 弹出结算界面并由按钮决定下一步
 }
 
 void AShooterPlayerController::OnBulletCountUpdated(int32 MagazineSize, int32 Bullets)

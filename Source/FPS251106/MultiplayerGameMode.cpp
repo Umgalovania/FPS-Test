@@ -139,9 +139,6 @@ void AMultiplayerGameMode::SpawnInitialEnemies()
 		}
 	}
 
-	// Minimum distance from player to spawn enemies (in cm, 3000 = 30 meters)
-	const float MinDistanceFromPlayer = 3000.0f;
-
 	// Spawn enemies at player start locations that are far from the player
 	TArray<int32> UsedIndices;
 	for (int32 i = 0; i < InitialEnemyCount; ++i)
@@ -193,5 +190,57 @@ void AMultiplayerGameMode::SpawnInitialEnemies()
 			break;
 		}
 	}
+}
+
+AShooterNPC* AMultiplayerGameMode::SpawnEnemyAtRandomLocation()
+{
+	if (!NPCClass)
+	{
+		return nullptr;
+	}
+
+	// Find all player starts in the world
+	TArray<AActor*> PlayerStarts;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), PlayerStarts);
+
+	if (PlayerStarts.Num() == 0)
+	{
+		UE_LOG(LogFPS251106, Warning, TEXT("No PlayerStart found in the world. Cannot respawn enemy."));
+		return nullptr;
+	}
+
+	// Get the player's location if available
+	FVector PlayerLocation = FVector::ZeroVector;
+	if (APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0))
+	{
+		PlayerLocation = PlayerPawn->GetActorLocation();
+	}
+
+	const int32 MaxAttempts = 50;
+	for (int32 Attempt = 0; Attempt < MaxAttempts; ++Attempt)
+	{
+		const int32 Index = FMath::RandRange(0, PlayerStarts.Num() - 1);
+		if (APlayerStart* SpawnPoint = Cast<APlayerStart>(PlayerStarts[Index]))
+		{
+			const FVector SpawnLocation = SpawnPoint->GetActorLocation();
+			const float DistanceToPlayer = FVector::Dist(SpawnLocation, PlayerLocation);
+
+			if (DistanceToPlayer >= MinDistanceFromPlayer || Attempt >= MaxAttempts - 5)
+			{
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+				AShooterNPC* SpawnedNPC = GetWorld()->SpawnActor<AShooterNPC>(NPCClass, SpawnPoint->GetActorTransform(), SpawnParams);
+				if (SpawnedNPC)
+				{
+					UE_LOG(LogFPS251106, Log, TEXT("Respawned enemy NPC at PlayerStart %d (Distance from player: %.2f)"), Index, DistanceToPlayer);
+					return SpawnedNPC;
+				}
+			}
+		}
+	}
+
+	UE_LOG(LogFPS251106, Warning, TEXT("Failed to respawn enemy after %d attempts."), MaxAttempts);
+	return nullptr;
 }
 
