@@ -49,3 +49,13 @@ void AMainMenuPlayerController::BeginPlay()
 	}
 }
 
+void AMainMenuPlayerController::RemoveMainMenuUI()
+{
+	if (MainMenuUI)
+	{
+		MainMenuUI->RemoveFromParent();
+		MainMenuUI = nullptr;
+		UE_LOG(LogFPS251106, Log, TEXT("MainMenuPlayerController: Removed main menu UI"));
+	}
+}
+

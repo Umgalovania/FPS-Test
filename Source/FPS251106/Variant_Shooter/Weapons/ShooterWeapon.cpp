@@ -210,6 +210,13 @@ void AShooterWeapon::FireProjectile(const FVector& TargetLocation)
 
 	// update the weapon HUD
 	WeaponOwner->UpdateWeaponHUD(CurrentBullets, MagazineSize);
+
+	// if we're out of ammo and still trying to fire, stop firing
+	// (for AI enemies, they will reload in OnSemiWeaponRefire)
+	if (CurrentBullets <= 0 && bIsFiring)
+	{
+		StopFiring();
+	}
 }
 
 FTransform AShooterWeapon::CalculateProjectileSpawnTransform(const FVector& TargetLocation) const

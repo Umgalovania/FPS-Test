@@ -12,6 +12,7 @@
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "ShooterGameMode.h"
+#include "PVPGameMode.h"
 #include "Net/UnrealNetwork.h"
 
 AShooterCharacter::AShooterCharacter()
@@ -67,6 +68,9 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 float AShooterCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	// Store the damage instigator
+	LastDamageInstigatorController = EventInstigator;
+
 	// ignore if already dead
 	if (CurrentHP <= 0.0f)
 	{
@@ -281,9 +285,26 @@ void AShooterCharacter::Die()
 	// call the BP handler
 	BP_OnDeath();
 
-	// notify the game mode so it can show the game over screen
-	if (AShooterGameMode* GM = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode()))
+	// Check if this is a PVP game mode
+	if (APVPGameMode* PVPGM = Cast<APVPGameMode>(GetWorld()->GetAuthGameMode()))
 	{
+		// In PVP mode, check if this was a kill
+		if (LastDamageInstigatorController)
+		{
+			if (APlayerController* KillerPC = Cast<APlayerController>(LastDamageInstigatorController))
+			{
+				// Get the dead player's controller
+				if (APlayerController* VictimPC = Cast<APlayerController>(GetController()))
+				{
+					// Notify PVP game mode of the kill
+					PVPGM->OnPlayerKill(KillerPC, VictimPC);
+				}
+			}
+		}
+	}
+	else if (AShooterGameMode* GM = Cast<AShooterGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		// Regular single player mode
 		GM->HandlePlayerDeath(this);
 	}
 }

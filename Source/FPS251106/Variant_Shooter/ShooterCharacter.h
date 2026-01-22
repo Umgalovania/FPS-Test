@@ -107,6 +107,10 @@ public:
 	/** Handle incoming damage */
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	/** Last damage instigator controller (stored when taking damage) */
+	UPROPERTY()
+	TObjectPtr<AController> LastDamageInstigatorController;
+
 public:
 
 	/** Handles start firing input */

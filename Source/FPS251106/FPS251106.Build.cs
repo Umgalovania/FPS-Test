@@ -19,7 +19,8 @@ public class FPS251106 : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"Slate",
-			"Kismet"
+			"Kismet",
+			"OnlineSubsystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

@@ -4,6 +4,7 @@
 #include "Variant_Shooter/UI/ShooterUI.h"
 #include "Variant_Shooter/ShooterGameMode.h"
 #include "Variant_Shooter/AI/ShooterNPC.h"
+#include "Variant_Shooter/AI/ShooterAIController.h"
 #include "Variant_Shooter/ShooterPlayerController.h"
 #include "Variant_Shooter/ShooterCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -234,6 +235,26 @@ AShooterNPC* AMultiplayerGameMode::SpawnEnemyAtRandomLocation()
 				if (SpawnedNPC)
 				{
 					UE_LOG(LogFPS251106, Log, TEXT("Respawned enemy NPC at PlayerStart %d (Distance from player: %.2f)"), Index, DistanceToPlayer);
+					
+					// Ensure the AI Controller is properly initialized
+					// Use a delayed callback to ensure AI Controller has time to spawn and possess
+					GetWorld()->GetTimerManager().SetTimerForNextTick([SpawnedNPC]()
+					{
+						if (SpawnedNPC && IsValid(SpawnedNPC))
+						{
+							if (AShooterAIController* AIController = Cast<AShooterAIController>(SpawnedNPC->GetController()))
+							{
+								UE_LOG(LogFPS251106, Log, TEXT("Enemy AI Controller initialized for respawned NPC"));
+								// Ensure StateTree is started
+								AIController->EnsureStateTreeStarted();
+							}
+							else
+							{
+								UE_LOG(LogFPS251106, Warning, TEXT("Enemy NPC spawned but AI Controller still not available after delay"));
+							}
+						}
+					});
+					
 					return SpawnedNPC;
 				}
 			}

@@ -160,8 +160,17 @@ void AShooterNPC::OnSemiWeaponRefire()
 	// are we still shooting?
 	if (bIsShooting)
 	{
-		// fire the weapon
-		Weapon->StartFiring();
+		// check if we're out of ammo
+		if (Weapon && Weapon->GetBulletCount() <= 0)
+		{
+			// automatically reload when out of ammo
+			Weapon->StartReload();
+		}
+		else
+		{
+			// fire the weapon
+			Weapon->StartFiring();
+		}
 	}
 }
 

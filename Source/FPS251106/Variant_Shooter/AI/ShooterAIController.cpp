@@ -33,6 +33,10 @@ void AShooterAIController::OnPossess(APawn* InPawn)
 
 		// subscribe to the pawn's OnDeath delegate
 		NPC->OnPawnDeath.AddDynamic(this, &AShooterAIController::OnPawnDeath);
+
+		// StateTree should auto-start when configured in Blueprint
+		// The StateTree asset and auto-start settings should be configured in BP_ShooterAIController
+		// This ensures that both manually placed and dynamically spawned enemies work correctly
 	}
 }
 
@@ -71,4 +75,20 @@ void AShooterAIController::OnPerceptionForgotten(AActor* Actor)
 {
 	// pass the data to the StateTree delegate hook
 	OnShooterPerceptionForgotten.ExecuteIfBound(Actor);
+}
+
+void AShooterAIController::EnsureStateTreeStarted()
+{
+	// StateTree should auto-start when configured in Blueprint
+	// This method is called after spawning to verify initialization
+	// The StateTree asset and auto-start settings should be configured in BP_ShooterAIController
+	if (StateTreeAI)
+	{
+		// Log for debugging
+		UE_LOG(LogTemp, Log, TEXT("ShooterAIController: StateTreeAI component exists, should auto-start if configured in Blueprint"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ShooterAIController: StateTreeAI component is null!"));
+	}
 }

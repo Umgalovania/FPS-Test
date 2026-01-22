@@ -19,6 +19,14 @@ class FPS251106_API AMainMenuPlayerController : public APlayerController
 public:
 	AMainMenuPlayerController(const FObjectInitializer& ObjectInitializer);
 
+	/** Remove the main menu UI from viewport */
+	UFUNCTION(BlueprintCallable, Category="Menu")
+	void RemoveMainMenuUI();
+
+	/** Get the main menu UI reference */
+	UFUNCTION(BlueprintCallable, Category="Menu")
+	UMainMenuUI* GetMainMenuUI() const { return MainMenuUI; }
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,5 +38,8 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UMainMenuUI> MainMenuUI;
 };
+
+
+
 
 

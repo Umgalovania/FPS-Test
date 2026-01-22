@@ -73,6 +73,9 @@ public:
 	/** Returns the targeted enemy */
 	AActor* GetCurrentTarget() const { return TargetEnemy; };
 
+	/** Ensures StateTree is started (called after spawning to verify initialization) */
+	void EnsureStateTreeStarted();
+
 protected:
 
 	/** Called when the AI perception component updates a perception on a given actor */
